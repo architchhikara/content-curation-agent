@@ -1,0 +1,9 @@
+google-api-python-client
+instaloader
+tweepy
+gspread
+oauth2client
+fake-useragent
+requests
+beautifulsoup4
+python-dotenv

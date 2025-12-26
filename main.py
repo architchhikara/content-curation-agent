@@ -1,17 +1,11 @@
 import os
 import time
 import random
-from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 from utils.sheets_handler import SheetsHandler
 from utils.helpers import random_sleep
-
-from scrapers.youtube_scraper import YoutubeScraper
-from scrapers.twitter_scraper import TwitterScraper
-from scrapers.instagram_scraper import InstagramScraper
-from scrapers.facebook_scraper import FacebookScraper
-from scrapers.linkedin_scraper import LinkedinScraper
+from scrapers import get_scraper_for_url
 
 # Load environment variables
 load_dotenv()
@@ -22,23 +16,6 @@ URLS_TO_SCRAPE = [
     # "https://www.youtube.com/watch?v=EXAMPLE",
     # "https://twitter.com/user/status/1234567890",
 ]
-
-def get_scraper_for_url(url):
-    domain = urlparse(url).netloc
-
-    if "youtube.com" in domain or "youtu.be" in domain:
-        return YoutubeScraper()
-    elif "twitter.com" in domain or "x.com" in domain:
-        return TwitterScraper()
-    elif "instagram.com" in domain:
-        return InstagramScraper()
-    elif "facebook.com" in domain:
-        return FacebookScraper()
-    elif "linkedin.com" in domain:
-        return LinkedinScraper()
-    else:
-        print(f"No scraper found for domain: {domain}")
-        return None
 
 def main():
     print("Starting Wisdom Scraper...")

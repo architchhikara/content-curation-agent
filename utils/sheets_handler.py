@@ -6,12 +6,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class SheetsHandler:
-    def __init__(self):
+    def __init__(self, sheet_url=None):
         self.scope = [
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive"
         ]
         self.creds_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "service_account.json")
+        # Use provided URL or fallback to environment variable
+        self.sheet_url = sheet_url
         self.sheet_name = os.getenv("GOOGLE_SHEET_NAME", "ContentData")
         self.client = None
         self.sheet = None
@@ -25,11 +27,20 @@ class SheetsHandler:
         try:
             creds = ServiceAccountCredentials.from_json_keyfile_name(self.creds_file, self.scope)
             self.client = gspread.authorize(creds)
+
             # Open the spreadsheet
             try:
-                self.sheet = self.client.open(self.sheet_name).sheet1
+                if self.sheet_url:
+                    print(f"Opening Google Sheet by URL: {self.sheet_url}")
+                    self.sheet = self.client.open_by_url(self.sheet_url).sheet1
+                else:
+                    print(f"Opening Google Sheet by Name: {self.sheet_name}")
+                    self.sheet = self.client.open(self.sheet_name).sheet1
             except gspread.SpreadsheetNotFound:
-                print(f"Error: Spreadsheet '{self.sheet_name}' not found.")
+                if self.sheet_url:
+                    print(f"Error: Spreadsheet with URL '{self.sheet_url}' not found or not accessible.")
+                else:
+                    print(f"Error: Spreadsheet '{self.sheet_name}' not found.")
                 return False
             return True
         except Exception as e:

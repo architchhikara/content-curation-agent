@@ -3,44 +3,23 @@ import sys
 from dotenv import load_dotenv
 
 from utils.sheets_handler import SheetsHandler
-from scrapers.youtube_scraper import YoutubeScraper
-from scrapers.twitter_scraper import TwitterScraper
-from scrapers.instagram_scraper import InstagramScraper
-from scrapers.facebook_scraper import FacebookScraper
-from scrapers.linkedin_scraper import LinkedinScraper
+from scrapers import get_scraper_for_url
 
 # Load environment variables
 load_dotenv()
 
 # --- CONFIGURATION ---
 # Change these variables to scrape a specific URL
-PLATFORM = "youtube"  # Options: 'youtube', 'twitter', 'instagram', 'facebook', 'linkedin'
 URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-
-def get_scraper_by_platform(platform_name):
-    """Returns the scraper instance based on the platform name."""
-    platform_name = platform_name.lower().strip()
-
-    if platform_name == "youtube":
-        return YoutubeScraper()
-    elif platform_name in ["twitter", "x"]:
-        return TwitterScraper()
-    elif platform_name == "instagram":
-        return InstagramScraper()
-    elif platform_name == "facebook":
-        return FacebookScraper()
-    elif platform_name == "linkedin":
-        return LinkedinScraper()
-    else:
-        return None
+SHEET_URL = None # e.g., "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
 
 def main():
-    print(f"Starting Single URL Scraper for Platform: {PLATFORM}")
+    print(f"Starting Single URL Scraper...")
 
-    # 1. Select Scraper
-    scraper = get_scraper_by_platform(PLATFORM)
+    # 1. Detect Platform and Select Scraper
+    scraper = get_scraper_for_url(URL)
     if not scraper:
-        print(f"Error: Unsupported platform '{PLATFORM}'. Please choose from: youtube, twitter, instagram, facebook, linkedin")
+        print(f"Error: Could not determine platform or unsupported platform for URL: {URL}")
         return
 
     # 2. Scrape Data
@@ -56,7 +35,9 @@ def main():
 
     # 3. Append to Google Sheet
     print("Connecting to Google Sheets...")
-    sheets = SheetsHandler()
+
+    # Initialize handler with the specific sheet URL if provided
+    sheets = SheetsHandler(sheet_url=SHEET_URL)
 
     # We attempt to connect. If it fails (e.g. invalid creds in this environment), we print error but don't crash.
     if sheets.connect():

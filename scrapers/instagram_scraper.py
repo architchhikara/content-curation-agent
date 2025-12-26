@@ -1,14 +1,31 @@
 import instaloader
 import re
+import os
 from datetime import datetime
+from dotenv import load_dotenv
 from .base_scraper import BaseScraper
+
+load_dotenv()
 
 class InstagramScraper(BaseScraper):
     def __init__(self):
         self.loader = instaloader.Instaloader()
-        # Option to login if credentials are provided in env,
-        # but defaulting to anonymous/public access as per requirements.
-        # Note: Instaloader often requires login for even public posts nowadays due to IG changes.
+        self.login()
+
+    def login(self):
+        """Attempts to log in to Instagram if credentials are provided."""
+        user = os.getenv("INSTAGRAM_USER")
+        password = os.getenv("INSTAGRAM_PASSWORD")
+
+        if user and password:
+            try:
+                print(f"Attempting Instagram login for user: {user}")
+                self.loader.login(user, password)
+                print("Instagram login successful.")
+            except Exception as e:
+                print(f"Warning: Instagram login failed: {e}. Continuing with anonymous session.")
+        else:
+            print("No Instagram credentials found. Using anonymous session.")
 
     def extract_shortcode(self, url):
         """Extracts the post shortcode from an Instagram URL."""

@@ -138,6 +138,7 @@ celerybeat.pid
 .env
 .envrc
 .venv
+service_account.json
 env/
 venv/
 ENV/

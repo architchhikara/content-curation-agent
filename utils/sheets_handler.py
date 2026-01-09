@@ -43,24 +43,40 @@ class SheetsHandler:
                     print(f"Error: Spreadsheet '{self.sheet_name}' not found.")
                 return False
             return True
+        except PermissionError:
+            print("\n" + "!"*50)
+            print("PERMISSION ERROR: The service account does not have access to this sheet.")
+            try:
+                import json
+                with open(self.creds_file) as f:
+                    email = json.load(f).get('client_email')
+                    print(f"Please SHARE your Google Sheet with this email: {email}")
+                    print("Give it 'Editor' permissions.")
+            except:
+                print("Please check your service_account.json and share the 'client_email' with your Google Sheet.")
+            print("!"*50 + "\n")
+            return False
         except Exception as e:
+            import traceback
             print(f"Error connecting to Google Sheets: {e}")
+            traceback.print_exc()
             return False
 
     def append_data(self, data):
         """
         Appends a row of data to the sheet.
-        Expected data format: {'source': '', 'author': '', 'date': '', 'text': '', 'url': ''}
+        Expected data format: {'title': '', 'author': '', 'date': '', 'url': '', 'metadata': {'views': '', 'likes': ''}}
         """
         if not self.sheet:
             if not self.connect():
                 return
 
         row = [
-            data.get('source', ''),
+            data.get('title', ''),
             data.get('author', ''),
             data.get('date', ''),
-            data.get('text', ''),
+            data.get('metadata', {}).get('views', '0'),
+            data.get('metadata', {}).get('likes', '0'),
             data.get('url', '')
         ]
 
@@ -70,13 +86,38 @@ class SheetsHandler:
         except Exception as e:
             print(f"Error appending data: {e}")
 
+    def append_rows(self, data_list):
+        """
+        Appends multiple rows of data to the sheet in a single call.
+        """
+        if not self.sheet:
+            if not self.connect():
+                return
+
+        rows = []
+        for data in data_list:
+            rows.append([
+                data.get('title', ''),
+                data.get('author', ''),
+                data.get('date', ''),
+                data.get('metadata', {}).get('views', '0'),
+                data.get('metadata', {}).get('likes', '0'),
+                data.get('url', '')
+            ])
+
+        try:
+            self.sheet.append_rows(rows)
+            print(f"Successfully appended {len(rows)} rows to Google Sheet.")
+        except Exception as e:
+            print(f"Error appending batch data: {e}")
+
     def ensure_header(self):
         """Ensures the sheet has the correct header row."""
         if not self.sheet:
              if not self.connect():
                 return
 
-        header = ["Source", "Author", "Date", "Text/Transcript", "URL"]
+        header = ["Title", "Author", "Date", "Views", "Likes", "URL"]
         try:
             existing_header = self.sheet.row_values(1)
             if not existing_header:
@@ -84,3 +125,14 @@ class SheetsHandler:
                 print("Added header row to Google Sheet.")
         except Exception as e:
             print(f"Error checking/adding header: {e}")
+
+    def clear_sheet(self):
+        """Clears all content from the sheet."""
+        if not self.sheet:
+            if not self.connect():
+                return
+        try:
+            self.sheet.clear()
+            print("Successfully cleared the Google Sheet.")
+        except Exception as e:
+            print(f"Error clearing sheet: {e}")

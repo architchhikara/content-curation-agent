@@ -5,6 +5,9 @@ A Python-based application that scrapes content (captions, metadata) from variou
 ## Features
 
 - **YouTube:** Fetches video title, description, author, and date using the official YouTube Data API.
+There is also a Sheet which uses App Script https://docs.google.com/spreadsheets/d/1tsdQJu1JcJXQnz7txlKIEFg-NBFFhmadFToOeXVMTsc/edit?gid=0#gid=0
+
+
 - **Instagram:** Uses `instaloader` to fetch post captions and metadata.
 - **Facebook:** Uses Open Graph metadata for a safe, non-login approach.
 - **X (Twitter):** Uses `tweepy` (Official API) to fetch tweets.

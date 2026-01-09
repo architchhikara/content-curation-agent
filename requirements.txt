@@ -7,3 +7,4 @@ fake-useragent
 requests
 beautifulsoup4
 python-dotenv
+ipykernel

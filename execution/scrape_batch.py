@@ -1,4 +1,9 @@
 import os
+import sys
+
+# Add the project root to sys.path so we can import scrapers and utils
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import time
 import random
 from dotenv import load_dotenv
@@ -18,7 +23,7 @@ URLS_TO_SCRAPE = [
 ]
 
 def main():
-    print("Starting Wisdom Scraper...")
+    print("Starting Wisdom Batch Scraper...")
 
     # Initialize Google Sheets Handler
     sheets = SheetsHandler()

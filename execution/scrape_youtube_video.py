@@ -1,7 +1,10 @@
 import os
 import sys
-from dotenv import load_dotenv
 
+# Add the project root to sys.path so we can import scrapers and utils
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from dotenv import load_dotenv
 from utils.sheets_handler import SheetsHandler
 from scrapers import get_scraper_for_url
 
@@ -9,22 +12,22 @@ from scrapers import get_scraper_for_url
 load_dotenv()
 
 # --- CONFIGURATION ---
-# Change these variables to scrape a specific URL
-URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-SHEET_URL = None # e.g., "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
+# Change these variables to scrape a specific YouTube video
+YOUTUBE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
 def main():
     print(f"Starting Single URL Scraper...")
 
     # 1. Detect Platform and Select Scraper
-    scraper = get_scraper_for_url(URL)
+    scraper = get_scraper_for_url(YOUTUBE_URL)
     if not scraper:
-        print(f"Error: Could not determine platform or unsupported platform for URL: {URL}")
+        print(f"Error: Could not determine platform for URL: {YOUTUBE_URL}")
         return
 
     # 2. Scrape Data
-    print(f"Scraping URL: {URL} ...")
-    data = scraper.scrape(URL)
+    print(f"Scraping YouTube URL: {YOUTUBE_URL} ...")
+    data = scraper.scrape(YOUTUBE_URL)
 
     if not data:
         print("Scraping failed. No data retrieved.")
